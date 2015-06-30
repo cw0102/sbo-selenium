@@ -1,19 +1,18 @@
 # Core dependencies common to all Python interpreters
 
-# As a public package, version requirements are rather lax
-# The currently preferred versions are specified in tests.txt for testing
+# Python packaging utilities
+setuptools==17.0
 
-# Package manager, also used to parse this file in setup.py
-pip>=1.5
+# Package manager
+pip==7.0.3
 
-# Our web application framework
-Django>=1.5
+# And now the direct dependencies
 
-# Our testing framework
-django-nose
+# The Django version is set by tox and by git-hooks/post-merge, because we
+# test multiple versions of it
 
 # HTTP library for calls to Sauce REST API for reporting test results
-requests
+requests==2.7.0
 
 # Python's Selenium driver (for browser automation)
-selenium
+selenium==2.46.0

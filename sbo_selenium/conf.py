@@ -12,7 +12,7 @@ class LazySettings(object):
     @property
     def SELENIUM_DEFAULT_BROWSER(self):
         """Default browser to use when running tests"""
-        return getattr(django_settings, 'SELENIUM_DEFAULT_BROWSER', ['chrome'])
+        return getattr(django_settings, 'SELENIUM_DEFAULT_BROWSER', 'chrome')
 
     @property
     def SELENIUM_DEFAULT_TESTS(self):
@@ -54,6 +54,11 @@ class LazySettings(object):
     def SELENIUM_SCREENSHOT_DIR(self):
         """Directory in which to store screenshots"""
         return getattr(django_settings, 'SELENIUM_SCREENSHOT_DIR', '')
+
+    @property
+    def SELENIUM_TEST_COMMAND_OPTIONS(self):
+        """Extra options to provide to the test runner"""
+        return getattr(django_settings, 'SELENIUM_TEST_COMMAND_OPTIONS', {})
 
     @property
     def SELENIUM_TIMEOUT(self):

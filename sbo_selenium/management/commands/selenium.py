@@ -1,16 +1,31 @@
+from __future__ import unicode_literals
+
 from optparse import make_option
 import os
 from shutil import rmtree
 from subprocess import Popen, PIPE
 
+import django
+from django.conf import settings as django_settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
-from django_nose.management.commands.test import Command as TestCommand
+if 'django_nose' in django_settings.INSTALLED_APPS:
+    from django_nose.management.commands.test import Command as TestCommand
+else:
+    from django.core.management.commands.test import Command as TestCommand
 
 from sbo_selenium.conf import settings
 from sbo_selenium.testcase import sauce_sessions
 from sbo_selenium.utils import OutputMonitor
+
+OPTIONS = (
+    (('-b', '--browser'), {'dest': 'browser_name', 'default': settings.SELENIUM_DEFAULT_BROWSER, 'help': 'Name of the browser to run the tests in (default is SELENIUM_DEFAULT_BROWSER)'}),
+    (('-n',), {'dest': 'count', 'type': int, 'default': 1, 'help': 'Number of times to run each test'}),
+    (('-p', '--platform'), {'dest': 'platform', 'help': 'OS and version thereof for the Sauce OnDemand VM to use'}),
+    (('--browser-version',), {'dest': 'browser_version', 'help': 'Browser version for the Sauce OnDemand VM to use'}),
+    (('--tunnel-identifier',), {'dest': 'tunnel_id', 'help': 'Sauce Connect tunnel identifier'}),
+)
 
 
 class Command(BaseCommand):
@@ -20,39 +35,27 @@ class Command(BaseCommand):
     args = '<package or test>'
     help = 'Run Selenium tests for this application'
     requires_model_validation = True
-    custom_options = (
-        make_option(
-            '-b',
-            '--browser',
-            dest='browser_name',
-            default='chrome',
-            help='Name of the browser to run the tests in (default is chrome)'
-        ),
-        make_option(
-            '-n',
-            type='int',
-            dest='count',
-            default=1,
-            help='Number of times to run each test'
-        ),
-        make_option(
-            '-p',
-            '--platform',
-            dest='platform',
-            help='OS and version thereof for the Sauce OnDemand VM to use'
-        ),
-        make_option(
-            '--browser-version',
-            dest='browser_version',
-            help='Browser version for the Sauce OnDemand VM to use'
-        ),
-        make_option(
-            '--tunnel-identifier',
-            dest='tunnel_id',
-            help='Sauce Connect tunnel identifier'
-        )
-    )
-    option_list = TestCommand.option_list + custom_options
+    # Command line arguments for Django 1.7 and below
+    custom_options = tuple([make_option(*option[0], **option[1]) for option in OPTIONS])
+
+    @property
+    def use_argparse(self):
+        return not (django.VERSION[0] == 1 and django.VERSION[1] < 8)
+
+    def add_arguments(self, parser):
+        """Command line arguments for Django 1.8+"""
+        for option in OPTIONS:
+            parser.add_argument(*option[0], **option[1])
+
+    def create_parser(self, prog_name, subcommand):
+        """
+        Override the base create_parser() method to add this command's custom
+        options in Django 1.7 and below.
+        """
+        if not self.use_argparse:
+            self.__class__.option_list = TestCommand.option_list + self.custom_options
+        parser = super(Command, self).create_parser(prog_name, subcommand)
+        return parser
 
     @staticmethod
     def clean():
@@ -95,9 +98,10 @@ class Command(BaseCommand):
             if not self.verify_appium_is_running():
                 return
 
-        # Ugly hack: make it so django-nose won't have nosetests choke on our
-        # parameters
-        BaseCommand.option_list += self.custom_options
+        # Ugly hack: make it so older versions of django-nose won't have
+        # nosetests choke on our parameters
+        if not self.use_argparse:
+            BaseCommand.option_list += self.custom_options
 
         # Configure and run the tests
         self.update_environment(options)
@@ -114,10 +118,11 @@ class Command(BaseCommand):
     def run_tests(self, tests, browser_name, count):
         """Configure and run the tests"""
         test_args = ['test'] + tests
+        test_options = settings.SELENIUM_TEST_COMMAND_OPTIONS
         for i in range(count):
             msg = 'Test run %d using %s' % (i + 1, browser_name)
             self.stdout.write(msg)
-            call_command(*test_args)
+            call_command(*test_args, **test_options)
             for session in sauce_sessions:
                 self.stdout.write(session)
             self.stdout.flush()
@@ -201,7 +206,8 @@ class Command(BaseCommand):
             command.extend(['-i', tunnel_id])
         sc_process = Popen(command,
                            stdout=output.stream.input,
-                           stderr=open(os.devnull, 'w'))
+                           stderr=open(os.devnull, 'w'),
+                           universal_newlines=True)
         ready_log_line = 'Connection established.'
         if not output.wait_for(ready_log_line, 60):
             self.stdout.write('Timeout starting Sauce Connect:\n')
