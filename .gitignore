@@ -1,7 +1,6 @@
 *.swp
-*.pyc
+*.py[cod]
 *.swo
-*.pyo
 .tox
 *.egg-info
 *_db
@@ -19,6 +18,7 @@ ve
 .idea
 .project
 .pydevproject
+.ropeproject
 .settings
 log
 *.db

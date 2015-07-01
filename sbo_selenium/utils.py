@@ -1,4 +1,6 @@
-import cStringIO
+from __future__ import unicode_literals
+
+from io import StringIO
 import uuid
 import threading
 import time
@@ -61,7 +63,7 @@ class InputStreamChunker(threading.Thread):
         self._stream_delimiter = [l for l in delimiter]
         self._stream_roll_back_len = (len(delimiter) - 1) * -1
         if not outputObjConstructor:
-            self._obj = (cStringIO.StringIO, (), {})
+            self._obj = (StringIO, (), {})
         else:
             self._obj = outputObjConstructor
 
@@ -84,10 +86,10 @@ class InputStreamChunker(threading.Thread):
 
     @property
     def data(self):
-        """returns a list of input chunkes (file-like objects) captured
+        """returns a list of input chunks (file-like objects) captured
         so far. This is a "stack" of sorts. Code consuming the chunks
         would be responsible for disposing of the file-like objects.
-        By default, the file-like objects are instances of cStringIO"""
+        By default, the file-like objects are instances of StringIO"""
         return self._data
 
     @property

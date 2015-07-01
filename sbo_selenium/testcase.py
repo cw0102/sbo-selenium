@@ -9,9 +9,9 @@ import socket
 import sys
 import time
 
-from nose.tools import assert_raises
+from django.core.servers.basehttp import WSGIServer
 from django.test import LiveServerTestCase
-from django.test.testcases import QuietWSGIRequestHandler, StoppableWSGIServer
+from django.test.testcases import QuietWSGIRequestHandler
 from django.utils import six
 import requests
 from selenium import webdriver
@@ -142,7 +142,7 @@ def replacement_handle_error(self, request, client_address):
 
 QuietWSGIRequestHandler.get_stderr = replacement_get_stderr
 QuietWSGIRequestHandler.log_message = replacement_log_message
-StoppableWSGIServer.handle_error = replacement_handle_error
+WSGIServer.handle_error = replacement_handle_error
 
 
 def lambda_click(element):
@@ -301,8 +301,8 @@ class SeleniumTestCase(LiveServerTestCase):
         assert not element.is_displayed(), msg
 
     def assert_not_present(self, selector):
-        assert_raises(NoSuchElementException,
-                      self.sel.find_element_by_css_selector, selector)
+        self.assertRaises(NoSuchElementException,
+                          self.sel.find_element_by_css_selector, selector)
 
     def assert_not_visible(self, selector):
         """ Ok if it's either missing or hidden """

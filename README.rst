@@ -59,7 +59,7 @@ runs:
 * ``SELENIUM_DEFAULT_BROWSER`` - The web browser to use for tests when none is
   specified.  Default value is ``'chrome'``.
 * ``SELENIUM_DEFAULT_TESTS`` - The Selenium test(s) to be run by default when
-  none are specified.  Should be an array of nose-compatible test
+  none are specified.  Should be an array of test
   specifications (see `Running Tests`_ below for examples).  Default value is
   an empty list.
 * ``SELENIUM_PAGE_LOAD_TIMEOUT`` - The number of seconds to wait for a response
@@ -90,6 +90,8 @@ runs:
   already exist.  If the tests are being run via Sauce Labs, screenshots are
   not created in this directory because that service generates screenshots for
   us.
+* ``SELENIUM_TEST_COMMAND_OPTIONS`` - Dictionary of additional keyword
+  parameters to pass to the ``test`` management command
 * ``SELENIUM_TIMEOUT`` - The number of seconds to wait after an operation first
   failed until giving up and declaring it an error.  Default value is 10
   seconds.
@@ -140,7 +142,7 @@ should do the trick::
     #!/bin/sh
     ./manage.py selenium $@ --settings=myapp.selenium_settings
 
-All the usual methods that nose uses to identify tests should work::
+All the usual methods that the test runner uses to identify tests should work::
 
     directory/of/tests
     python.module
