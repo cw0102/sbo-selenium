@@ -5,7 +5,8 @@ sbo-selenium Changelog
 ------------------
 * Support Django 1.7 and 1.8
 * Support Python 3 when using Django 1.6 and above
-* Support use without nose and django-nose, using Django's default test runner
+* Removed dependency on nose and django-nose, now also works with the default
+  Django test runner
 * Fixed SELENIUM_DEFAULT_BROWSER behavior (was always defaulting to chrome)
 * Added the SELENIUM_TEST_COMMAND_OPTIONS setting
 
