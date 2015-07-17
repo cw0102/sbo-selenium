@@ -41,5 +41,6 @@ if virtual_env:
     # Set Django version to use outside of tox
     os.system("pip install Django==1.8.2")
     os.system("pip install --requirement requirements/base.txt")
+    os.system("pip install --requirement requirements/tox.txt")
     os.system("pip install --requirement requirements/tests.txt")
     os.system("pip install --editable ./")
