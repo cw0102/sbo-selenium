@@ -10,14 +10,14 @@ from django.conf import settings as django_settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
+from sbo_selenium.conf import settings
+from sbo_selenium.testcase import sauce_sessions
+from sbo_selenium.utils import OutputMonitor
+
 if 'django_nose' in django_settings.INSTALLED_APPS:
     from django_nose.management.commands.test import Command as TestCommand
 else:
     from django.core.management.commands.test import Command as TestCommand
-
-from sbo_selenium.conf import settings
-from sbo_selenium.testcase import sauce_sessions
-from sbo_selenium.utils import OutputMonitor
 
 OPTIONS = (
     (('-b', '--browser'), {'dest': 'browser_name', 'default': settings.SELENIUM_DEFAULT_BROWSER, 'help': 'Name of the browser to run the tests in (default is SELENIUM_DEFAULT_BROWSER)'}),

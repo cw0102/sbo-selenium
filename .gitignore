@@ -16,6 +16,7 @@ dist
 .noseids
 .DS_Store
 ve
+.cache
 .idea
 .project
 .pydevproject
