@@ -47,6 +47,9 @@ class Command(BaseCommand):
         for option in OPTIONS:
             parser.add_argument(*option[0], **option[1])
 
+        if django.VERSION > (1, 9):
+            parser.add_argument('args', nargs='*')
+
     def create_parser(self, prog_name, subcommand):
         """
         Override the base create_parser() method to add this command's custom
