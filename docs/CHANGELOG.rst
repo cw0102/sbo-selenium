@@ -1,6 +1,10 @@
 sbo-selenium Changelog
 ======================
 
+0.5.1 (2016-03-03)
+------------------
+* Support accessibility developer tools 2.10.1
+
 0.5.0 (2015-06-29)
 ------------------
 * Support Django 1.7 and 1.8
