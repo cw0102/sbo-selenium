@@ -26,7 +26,7 @@ with codecs.open('README.rst', 'r', 'utf-8') as f:
     long_description = f.read()
 
 
-version = '0.5.1'  # Remember to update docs/CHANGELOG.rst when this changes
+version = '0.6.0'  # Remember to update docs/CHANGELOG.rst when this changes
 
 setup(
     name="sbo-selenium",
@@ -39,6 +39,10 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django',
+        'Framework :: Django :: 1.6',
+        'Framework :: Django :: 1.7',
+        'Framework :: Django :: 1.8',
+        'Framework :: Django :: 1.9',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
@@ -48,6 +52,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Software Development',
         'Topic :: Software Development :: Testing',
     ],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers

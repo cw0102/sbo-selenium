@@ -181,7 +181,7 @@ run.  On a local machine, you'll need to set the ``SELENIUM_SAUCE_*`` Django
 settings described above and use a couple of command-line parameters in
 addition to the ``-b`` browser name setting mentioned previously:
 
-* ``-p`` or ``--platform`` - The name and version of the operating system to
+* ``--platform`` - The name and version of the operating system to
   use.
 * ``--browser-version`` - The version number of the browser to use.
 
