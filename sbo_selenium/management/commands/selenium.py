@@ -22,7 +22,7 @@ else:
 OPTIONS = (
     (('-b', '--browser'), {'dest': 'browser_name', 'default': settings.SELENIUM_DEFAULT_BROWSER, 'help': 'Name of the browser to run the tests in (default is SELENIUM_DEFAULT_BROWSER)'}),
     (('-n',), {'dest': 'count', 'type': int, 'default': 1, 'help': 'Number of times to run each test'}),
-    (('-p', '--platform'), {'dest': 'platform', 'help': 'OS and version thereof for the Sauce OnDemand VM to use'}),
+    (('--platform',), {'dest': 'platform', 'help': 'OS and version thereof for the Sauce OnDemand VM to use'}),
     (('--browser-version',), {'dest': 'browser_version', 'help': 'Browser version for the Sauce OnDemand VM to use'}),
     (('--tunnel-identifier',), {'dest': 'tunnel_id', 'help': 'Sauce Connect tunnel identifier'}),
 )
@@ -44,6 +44,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         """Command line arguments for Django 1.8+"""
+        # Add the underlying test command arguments first
+        test_command = TestCommand()
+        test_command.add_arguments(parser)
+
         for option in OPTIONS:
             parser.add_argument(*option[0], **option[1])
 

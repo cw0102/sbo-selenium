@@ -333,7 +333,7 @@ class SeleniumTestCase(LiveServerTestCase):
             script += line.strip()
         self.sel.execute_script(script)
         # Wait for the script to finish loading
-        self.wait_for_condition('return axs.AuditRule.specs.videoWithoutCaptions !== "undefined";')
+        self.wait_for_condition('return axs.AuditRules.specs.videoWithoutCaptions !== "undefined";')
         # Now run the audit and inspect the results
         self.sel.execute_script('axs_audit_results = axs.Audit.run();')
         failed = self.sel.execute_script('return axs_audit_results.some(function (element, index, array) { return element.result === "FAIL" });')

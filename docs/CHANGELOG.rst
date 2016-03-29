@@ -1,6 +1,16 @@
 sbo-selenium Changelog
 ======================
 
+0.6.0 (2016-03-29)
+------------------
+* Removed the ``-p`` alias for ``--platform``, as it now conflicts with
+  the ``--plugins`` parameter in the base Django test command
+* Fixed support for the underlying test command's standard options under
+  Django 1.8 and above
+* Confirmed compatibility with Django 1.9 and current master
+* Fixed a minor incompatibility in ``audit_accessibility()`` with
+  accessibility developer tools 2.10.1
+
 0.5.1 (2016-03-03)
 ------------------
 * Support accessibility developer tools 2.10.1

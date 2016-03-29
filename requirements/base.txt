@@ -1,10 +1,10 @@
 # Core dependencies common to all Python interpreters
 
 # Python packaging utilities
-setuptools==18.4
+setuptools==20.4
 
 # Package manager
-pip==7.1.2
+pip==8.1.1
 
 # And now the direct dependencies
 
@@ -12,7 +12,7 @@ pip==7.1.2
 # test multiple versions of it
 
 # HTTP library for calls to Sauce REST API for reporting test results
-requests==2.8.1
+requests==2.9.1
 
 # Python's Selenium driver (for browser automation)
-selenium==2.48.0
+selenium==2.53.1
