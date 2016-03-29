@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 
 import codecs
-import os
-from pip.download import PipSession
-from pip.index import PackageFinder
-from pip.req import parse_requirements
 from setuptools import setup, find_packages
 
 install_requires = [
@@ -12,15 +8,6 @@ install_requires = [
     'requests',
     'selenium',
 ]
-
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if on_rtd:
-    root_dir = os.path.abspath(os.path.dirname(__file__))
-    session = PipSession()
-    requirements_path = os.path.join(root_dir, 'requirements', 'documentation.txt')
-    finder = PackageFinder([], [], session=session)
-    requirements = parse_requirements(requirements_path, finder, session=session)
-    install_requires.extend([str(r.req) for r in requirements])
 
 with codecs.open('README.rst', 'r', 'utf-8') as f:
     long_description = f.read()
