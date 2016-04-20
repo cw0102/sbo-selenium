@@ -160,8 +160,23 @@ You can use the ``-b`` or ``--browser`` parameter to change this::
 
 Valid browser names are "chrome", "firefox", "htmlunit", "ios", "opera",
 "phantomjs", and "safari" ("ipad", "iphone", and "ipod" are treated as
-synonyms for "ios", the form factor is chosen in Appium).  Alternatively,
-tests can be run at Sauce Labs; see below for details.
+synonyms for "ios", the form factor is chosen in Appium).
+
+If you want to specify a specific Selenium server to use as a command executor
+(whether running on localhost, a specific remote server, a Docker container,
+etc.), you can use the ``--command-executor`` parameter::
+
+    ./manage.py selenium -b firefox --command-executor=http://127.0.0.1:4444/wd/hub
+
+Note that if you are using a command executor in a Docker container, a remote
+host, etc., you should not rely on ``localhost`` or ``127.0.0.1`` in
+``DJANGO_LIVE_TEST_SERVER_ADDRESS``.  Instead, either specify the real IP
+address (rarely ideal) or try to deduce it via code like the following::
+
+    import socket
+    DJANGO_LIVE_TEST_SERVER_ADDRESS = '{}:9090'.format(socket.gethostbyname(socket.gethostname()))
+
+Alternatively, tests can be run at Sauce Labs; see below for details.
 
 You can also specify the number of times to run the tests (for example, if you
 have a test that is failing intermittently for some reason and want to run it

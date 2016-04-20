@@ -144,7 +144,7 @@ class InputStreamChunker(threading.Thread):
             marker.pop(0)
             marker.append(l)
             if marker != self._stream_delimiter:
-                tf.write(l)
+                tf.write(unicode(l))
             else:
                 # chopping off the marker first
                 tf.seek(self._stream_roll_back_len, 2)

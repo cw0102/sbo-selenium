@@ -1,9 +1,11 @@
 import os
+import socket
 
 DEBUG = False
 JS_DEBUG = False
 ALLOWED_HOSTS = ['localhost']
-DJANGO_LIVE_TEST_SERVER_ADDRESS = 'localhost:9090'
+IP_ADDRESS = socket.gethostbyname(socket.gethostname())
+DJANGO_LIVE_TEST_SERVER_ADDRESS = '{}:9090'.format(IP_ADDRESS)
 SELENIUM_SAUCE_VERSION = '2.41.0'
 SELENIUM_TIMEOUT = 10
 
