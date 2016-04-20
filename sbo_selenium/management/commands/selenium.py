@@ -9,6 +9,7 @@ import django
 from django.conf import settings as django_settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
+from django.test.utils import get_runner
 
 from sbo_selenium.conf import settings
 from sbo_selenium.testcase import sauce_sessions
@@ -22,6 +23,7 @@ else:
 OPTIONS = (
     (('-b', '--browser'), {'dest': 'browser_name', 'default': settings.SELENIUM_DEFAULT_BROWSER, 'help': 'Name of the browser to run the tests in (default is SELENIUM_DEFAULT_BROWSER)'}),
     (('-n',), {'dest': 'count', 'type': int, 'default': 1, 'help': 'Number of times to run each test'}),
+    (('--command-executor',), {'dest': 'command_executor', 'help': 'URL of the Selenium server to use if not using Sauce Labs or directly launching a browser'}),
     (('--platform',), {'dest': 'platform', 'help': 'OS and version thereof for the Sauce OnDemand VM to use'}),
     (('--browser-version',), {'dest': 'browser_version', 'help': 'Browser version for the Sauce OnDemand VM to use'}),
     (('--tunnel-identifier',), {'dest': 'tunnel_id', 'help': 'Sauce Connect tunnel identifier'}),
@@ -102,10 +104,11 @@ class Command(BaseCommand):
             if not self.verify_appium_is_running():
                 return
 
-        # Ugly hack: make it so older versions of django-nose won't have
-        # nosetests choke on our parameters
-        if not self.use_argparse:
-            BaseCommand.option_list += self.custom_options
+        # Make it so django-nose won't have nosetests choke on our parameters
+        TestRunner = get_runner(django_settings)
+        if hasattr(TestRunner, 'django_opts'):
+            for option in OPTIONS:
+                TestRunner.django_opts.extend(option[0])
 
         # Configure and run the tests
         self.update_environment(options)
@@ -150,6 +153,8 @@ class Command(BaseCommand):
             # Jenkins plugin has already configured the environment for us
             return
         env['SELENIUM_BROWSER'] = options['browser_name']
+        if options['command_executor']:
+            env['SELENIUM_COMMAND_EXECUTOR'] = options['command_executor']
         platform = options['platform']
         browser_version = options['browser_version']
         if not platform or not browser_version:
@@ -245,9 +250,9 @@ class Command(BaseCommand):
         self.stdout.write('Starting the Selenium standalone server')
         output = OutputMonitor()
         selenium_process = Popen(['java', '-jar', selenium_jar],
-                                 stdout=output.stream.input,
-                                 stderr=open(os.devnull, 'w'))
-        ready_log_line = 'Started org.openqa.jetty.jetty.Server'
+                                 stdout=open(os.devnull, 'w'),
+                                 stderr=output.stream.input)
+        ready_log_line = 'Selenium Server is up and running'
         if not output.wait_for(ready_log_line, 10):
             self.stdout.write('Timeout starting the Selenium server:\n')
             self.stdout.write('\n'.join(output.lines))

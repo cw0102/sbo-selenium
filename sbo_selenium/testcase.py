@@ -249,12 +249,26 @@ class SeleniumTestCase(LiveServerTestCase):
         self._screenshot_number = 1
         self.browser = os.getenv('SELENIUM_BROWSER',
                                  settings.SELENIUM_DEFAULT_BROWSER)
+        command_executor = os.getenv('SELENIUM_COMMAND_EXECUTOR', '')
+        executor_was_set_explicitly = command_executor != ''
+        command_executor = command_executor or 'http://127.0.0.1:4444/wd/hub'
         if os.getenv('SELENIUM_HOST'):
             self.sel = self.sauce_labs_driver()
+        elif executor_was_set_explicitly and self.browser in ('chrome', 'firefox'):
+            if self.browser == 'chrome':
+                caps = DesiredCapabilities.CHROME
+                browser_profile = None
+            else:
+                caps = DesiredCapabilities.FIREFOX
+                browser_profile = self.get_firefox_profile()
+            self.sel = RemoteWebDriver(command_executor=command_executor,
+                                       desired_capabilities=caps,
+                                       browser_profile=browser_profile)
         elif self.browser == 'firefox':
             self.sel = Firefox(self.get_firefox_profile())
         elif self.browser == 'htmlunit':
-            self.sel = RemoteWebDriver(desired_capabilities=DesiredCapabilities.HTMLUNITWITHJS)
+            self.sel = RemoteWebDriver(command_executor=command_executor,
+                                       desired_capabilities=DesiredCapabilities.HTMLUNITWITHJS)
         elif self.browser in ['ios', 'ipad', 'ipod', 'iphone']:
             capabilities = {
                 'app': 'safari',
@@ -265,15 +279,18 @@ class SeleniumTestCase(LiveServerTestCase):
             self.sel = RemoteWebDriver(command_executor=self.appium_command_executor(),
                                        desired_capabilities=capabilities)
         elif self.browser == 'opera':
-            self.sel = RemoteWebDriver(desired_capabilities=DesiredCapabilities.OPERA)
+            self.sel = RemoteWebDriver(command_executor=command_executor,
+                                       desired_capabilities=DesiredCapabilities.OPERA)
         elif self.browser == 'iexplore':
-            self.sel = RemoteWebDriver(desired_capabilities=DesiredCapabilities.INTERNETEXPLORER)
+            self.sel = RemoteWebDriver(command_executor=command_executor,
+                                       desired_capabilities=DesiredCapabilities.INTERNETEXPLORER)
         elif self.browser == 'phantomjs':
             self.sel = PhantomJS(service_args=['--debug=true',
                                                '--webdriver-loglevel=DEBUG'])
         elif self.browser == 'safari':
             # requires a Safari extension to be built from source and installed
-            self.sel = RemoteWebDriver(desired_capabilities=DesiredCapabilities.SAFARI)
+            self.sel = RemoteWebDriver(command_executor=command_executor,
+                                       desired_capabilities=DesiredCapabilities.SAFARI)
         else:
             self.sel = Chrome()
         self.sel.set_page_load_timeout(settings.SELENIUM_PAGE_LOAD_TIMEOUT)

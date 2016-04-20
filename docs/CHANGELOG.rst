@@ -1,6 +1,16 @@
 sbo-selenium Changelog
 ======================
 
+0.7.0 (2016-04-20)
+------------------
+* Added the ``--command-executor`` option for specifying which Selenium server
+  to use, if not localhost
+* Fixed handling of custom parameters to work with recent versions of
+  django-nose
+* Changed monitoring of the Selenium server auto-launching to watch stderr
+  instead of stdout for the startup complete message, as recent versions of
+  Selenium seem to have moved the startup output there
+
 0.6.0 (2016-03-29)
 ------------------
 * Removed the ``-p`` alias for ``--platform``, as it now conflicts with
