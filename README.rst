@@ -62,6 +62,16 @@ runs:
   none are specified.  Should be an array of test
   specifications (see `Running Tests`_ below for examples).  Default value is
   an empty list.
+* ``SELENIUM_DOCKER_DEBUG`` - True if the debug version of the selenium Docker
+  container should be used (in order to allow VNC connections).  Only relevant
+  when the ``--docker`` parameter is used.  Default value is ``False``.
+* ``SELENIUM_DOCKER_PORT`` - The port of localhost (or the Docker Machine, on
+  Mac and Windows) at which to expose the Selenium server running in a Docker
+  container.  Only relevant when the ``--docker`` parameter is used.  Default
+  value is ``4444``.
+* ``SELENIUM_DOCKER_TAG`` - The tag to use in identifying which version of the
+  Selenium Docker container to start.  Only relevant when the ``--docker``
+  parameter is used.  Default value is ``2.53.0``.
 * ``SELENIUM_PAGE_LOAD_TIMEOUT`` - The number of seconds to wait for a response
   to a GET request before considering it to have failed.  Default value is 10
   seconds.  (This is particularly important when using Sauce Connect, as it
@@ -175,6 +185,14 @@ address (rarely ideal) or try to deduce it via code like the following::
 
     import socket
     DJANGO_LIVE_TEST_SERVER_ADDRESS = '{}:9090'.format(socket.gethostbyname(socket.gethostname()))
+
+As a convenience, you can use the ``--docker`` parameter to automatically start
+a standalone Selenium server in a Docker container for chrome or firefox tests.
+For this to work, the terminal must already be configured for ``docker``
+commands to work.  The container will be stopped automatically at the end of
+the test run.  By default it uses the ``2.53.0`` image from
+https://hub.docker.com/r/selenium/ and is exposed on port 4444, but this can
+be customized via the Django settings described above.
 
 Alternatively, tests can be run at Sauce Labs; see below for details.
 

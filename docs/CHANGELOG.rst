@@ -5,11 +5,17 @@ sbo-selenium Changelog
 ------------------
 * Added the ``--command-executor`` option for specifying which Selenium server
   to use, if not localhost
+* Added the ``--docker`` option to automatically start and stop a Docker
+  container for a standalone Selenium server to be used, and added a few
+  related Django settings
 * Fixed handling of custom parameters to work with recent versions of
   django-nose
 * Changed monitoring of the Selenium server auto-launching to watch stderr
   instead of stdout for the startup complete message, as recent versions of
   Selenium seem to have moved the startup output there
+* Fixed a bug where the code for timing out attempts to start certain services
+  (like a standalone Selenium server or Sauce Connect) was taking far longer
+  than intended to time out
 
 0.6.0 (2016-03-29)
 ------------------

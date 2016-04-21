@@ -13,7 +13,7 @@ from django.test.utils import get_runner
 
 from sbo_selenium.conf import settings
 from sbo_selenium.testcase import sauce_sessions
-from sbo_selenium.utils import OutputMonitor
+from sbo_selenium.utils import DockerSelenium, OutputMonitor
 
 if 'django_nose' in django_settings.INSTALLED_APPS:
     from django_nose.management.commands.test import Command as TestCommand
@@ -24,6 +24,7 @@ OPTIONS = (
     (('-b', '--browser'), {'dest': 'browser_name', 'default': settings.SELENIUM_DEFAULT_BROWSER, 'help': 'Name of the browser to run the tests in (default is SELENIUM_DEFAULT_BROWSER)'}),
     (('-n',), {'dest': 'count', 'type': int, 'default': 1, 'help': 'Number of times to run each test'}),
     (('--command-executor',), {'dest': 'command_executor', 'help': 'URL of the Selenium server to use if not using Sauce Labs or directly launching a browser'}),
+    (('--docker',), {'dest': 'docker', 'action': 'store_true', 'help': 'Start and use a standalone Selenium server in a Docker container (chrome or firefox only)'}),
     (('--platform',), {'dest': 'platform', 'help': 'OS and version thereof for the Sauce OnDemand VM to use'}),
     (('--browser-version',), {'dest': 'browser_version', 'help': 'Browser version for the Sauce OnDemand VM to use'}),
     (('--tunnel-identifier',), {'dest': 'tunnel_id', 'help': 'Sauce Connect tunnel identifier'}),
@@ -90,9 +91,20 @@ class Command(BaseCommand):
         # Clear any old log and screenshots
         self.clean()
 
+        docker = None
         sc_process = None
         selenium_process = None
-        if 'platform' in options and settings.SELENIUM_SAUCE_CONNECT_PATH:
+        if options['docker']:
+            if browser_name not in ['chrome', 'firefox']:
+                self.stdout.write('Only chrome and firefox can currently be run in a Docker container')
+                return
+            docker = DockerSelenium(browser=browser_name,
+                                    port=settings.SELENIUM_DOCKER_PORT,
+                                    tag=settings.SELENIUM_DOCKER_TAG,
+                                    debug=settings.SELENIUM_DOCKER_DEBUG)
+            docker.start()
+            options['command_executor'] = docker.command_executor()
+        elif 'platform' in options and settings.SELENIUM_SAUCE_CONNECT_PATH:
             running, sc_process = self.verify_sauce_connect_is_running(options)
             if not running:
                 return
@@ -113,6 +125,10 @@ class Command(BaseCommand):
         # Configure and run the tests
         self.update_environment(options)
         self.run_tests(tests, browser_name, count)
+
+        # Stop the Selenium Docker container, if running
+        if docker and docker.container_id:
+            docker.stop()
 
         # Kill Sauce Connect, if running
         if sc_process:
