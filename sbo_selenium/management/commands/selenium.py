@@ -102,8 +102,6 @@ class Command(BaseCommand):
                                     port=settings.SELENIUM_DOCKER_PORT,
                                     tag=settings.SELENIUM_DOCKER_TAG,
                                     debug=settings.SELENIUM_DOCKER_DEBUG)
-            docker.start()
-            options['command_executor'] = docker.command_executor()
         elif 'platform' in options and settings.SELENIUM_SAUCE_CONNECT_PATH:
             running, sc_process = self.verify_sauce_connect_is_running(options)
             if not running:
@@ -123,12 +121,16 @@ class Command(BaseCommand):
                 TestRunner.django_opts.extend(option[0])
 
         # Configure and run the tests
-        self.update_environment(options)
-        self.run_tests(tests, browser_name, count)
-
-        # Stop the Selenium Docker container, if running
-        if docker and docker.container_id:
-            docker.stop()
+        try:
+            if docker:
+                docker.start()
+                options['command_executor'] = docker.command_executor()
+            self.update_environment(options)
+            self.run_tests(tests, browser_name, count)
+        finally:
+            # Stop the Selenium Docker container, if running
+            if docker and docker.container_id:
+                docker.stop()
 
         # Kill Sauce Connect, if running
         if sc_process:
