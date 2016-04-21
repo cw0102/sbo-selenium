@@ -190,7 +190,7 @@ As a convenience, you can use the ``--docker`` parameter to automatically start
 a standalone Selenium server in a Docker container for chrome or firefox tests.
 For this to work, the terminal must already be configured for ``docker``
 commands to work.  The container will be stopped automatically at the end of
-the test run.  By default it uses the ``latest`` image from
+the test run.  By default it uses the ``2.53.0`` image from
 https://hub.docker.com/r/selenium/ and is exposed on port 4444, but this can
 be customized via the Django settings described above.
 
