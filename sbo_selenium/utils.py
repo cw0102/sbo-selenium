@@ -245,7 +245,7 @@ class DockerSelenium:
         self.container_id = check_output(self.command, shell=True).strip()
         try:
             self.ip_address = check_output(['docker-machine', 'ip']).strip()
-        except CalledProcessError:
+        except (CalledProcessError, OSError):
             self.ip_address = '127.0.0.1'
 
         output = OutputMonitor()
