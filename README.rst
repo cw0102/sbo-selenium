@@ -28,8 +28,8 @@ browser driver needs to be present. To drive Chrome via Selenium, you'll need
 to install both Chrome itself and then chromedriver:
 
 1. Download the correct ChromeDriver from
-http://chromedriver.storage.googleapis.com/index.html 2. Put the binary,
-``chromedriver``, somewhere on your path (ex: ``/usr/local/bin/chromedriver``)
+http://chromedriver.storage.googleapis.com/index.html 
+2. Put the binary, ``chromedriver``, somewhere on your path (ex: ``/usr/local/bin/chromedriver``)
 
 On Mac OS X, if you have Homebrew installed you can instead run
 ``brew install chromedriver``.
