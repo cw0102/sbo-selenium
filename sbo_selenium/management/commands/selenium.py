@@ -35,7 +35,6 @@ class Command(BaseCommand):
     """
     Django management command for running Selenium tests.
     """
-    args = '<package or test>'
     help = 'Run Selenium tests for this application'
     requires_model_validation = True
     # Command line arguments for Django 1.7 and below

@@ -1,7 +1,13 @@
 sbo-selenium Changelog
 ======================
 
-0.7.0 (2016-04-20)
+0.7.1 (2016-04-22)
+------------------
+* Fixed support for specifying which tests to run on the command line.  This
+  seems to have been broken for Django versions which use argparse to parse
+  management command options since support was added for them.
+
+0.7.0 (2016-04-21)
 ------------------
 * Added the ``--command-executor`` option for specifying which Selenium server
   to use, if not localhost
