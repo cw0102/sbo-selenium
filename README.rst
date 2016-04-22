@@ -14,13 +14,22 @@ usual for the containing project; for SBO packages this is typically::
 
     pip install -r requirements/tests.txt
 
-To run tests using a particular browser, it needs to already be installed.  To
-drive Chrome via Selenium, you'll need to install both Chrome itself and then
-chromedriver:
- 
-1. Download the correct ChromeDriver from http://chromedriver.storage.googleapis.com/index.html
-2. Put the binary, ``chromedriver``, somewhere on your path
-   (ex: ``/usr/local/bin/chromedriver``)
+Make sure the post-merge runs to install all of the prerequisites::
+
+    ./git-hooks/post-merge
+
+Browser engines
++++++++++++++++
+
+If you are running tests using docker, you don't need to worry about this part.
+
+If you are not using docker, to run tests using a particular browser, the
+browser driver needs to be present. To drive Chrome via Selenium, you'll need
+to install both Chrome itself and then chromedriver:
+
+1. Download the correct ChromeDriver from
+http://chromedriver.storage.googleapis.com/index.html 2. Put the binary,
+``chromedriver``, somewhere on your path (ex: ``/usr/local/bin/chromedriver``)
 
 On Mac OS X, if you have Homebrew installed you can instead run
 ``brew install chromedriver``.
@@ -134,9 +143,16 @@ related pages.
 Running Tests
 -------------
 
+Running Tests Locally
++++++++++++++++++++++
+
 Tests can be run via the "selenium" management command::
 
     ./manage.py selenium --settings=myapp.selenium_settings
+
+To run the default set of sbo-selenium tests::
+
+    ./manage.py selenium
 
 Or to specify which test(s) to run rather than using the defaults specified in
 the settings file::
@@ -158,7 +174,7 @@ All the usual methods that the test runner uses to identify tests should work::
     python.module
     python.module:TestClass
     python.module:TestClass.test_method
-    
+
 (Note that a specifying a package, like myapp.tests.selenium when the actual
 tests are defined in modules within that package, does NOT work.)
 
@@ -186,24 +202,28 @@ address (rarely ideal) or try to deduce it via code like the following::
     import socket
     DJANGO_LIVE_TEST_SERVER_ADDRESS = '{}:9090'.format(socket.gethostbyname(socket.gethostname()))
 
-As a convenience, you can use the ``--docker`` parameter to automatically start
-a standalone Selenium server in a Docker container for chrome or firefox tests.
-For this to work, the terminal must already be configured for ``docker``
-commands to work.  The container will be stopped automatically at the end of
-the test run.  By default it uses the ``2.53.0`` image from
-https://hub.docker.com/r/selenium/ and is exposed on port 4444, but this can
-be customized via the Django settings described above.
-
-Alternatively, tests can be run at Sauce Labs; see below for details.
-
 You can also specify the number of times to run the tests (for example, if you
 have a test that is failing intermittently for some reason and want to run it
 a few times to increase the odds of encountering the error)::
 
     ./manage.py selenium -n 5
 
-Sauce Labs
-----------
+Running Tests in a Docker Container
++++++++++++++++++++++++++++++++++++
+
+As a convenience, you can use the ``--docker`` parameter to automatically start
+a standalone Selenium server in a Docker container for chrome or firefox tests.
+For this to work, the terminal must already be configured for ``docker``
+commands to work.  The container will be stopped automatically at the end of
+the test run.  By default it uses the ``2.53.0`` image from
+https://hub.docker.com/r/selenium/ and is exposed on port 4444, but this can
+be customized via the Django settings described above.::
+
+    ./manage.py selenium --settings=myapp.selenium_settings --docker
+    ./manage.py selenium --docker
+
+Running Tests at Sauce Labs
++++++++++++++++++++++++++++
 
 Instead of running tests in a local browser, they can be run on one in a
 virtual machine hosted at  `Sauce Labs <https://saucelabs.com/home>`_.  Support
