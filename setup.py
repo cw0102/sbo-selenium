@@ -13,7 +13,7 @@ with codecs.open('README.rst', 'r', 'utf-8') as f:
     long_description = f.read()
 
 
-version = '0.7.1'  # Remember to update docs/CHANGELOG.rst when this changes
+version = '0.7.2'  # Remember to update docs/CHANGELOG.rst when this changes
 
 setup(
     name="sbo-selenium",

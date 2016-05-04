@@ -1,6 +1,11 @@
 sbo-selenium Changelog
 ======================
 
+0.7.2 (2016-05-05)
+------------------
+* Clarify and demonstrate how to successfully run tests via a Docker-based
+  Selenium server in a virtual machine while using tox.
+
 0.7.1 (2016-04-22)
 ------------------
 * Fixed support for specifying which tests to run on the command line.  This
