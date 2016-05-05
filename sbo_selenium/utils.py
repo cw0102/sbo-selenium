@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from io import StringIO
 from subprocess import CalledProcessError, check_call, check_output, Popen,\
-                       PIPE
+    PIPE
 import uuid
 import threading
 import time

@@ -196,11 +196,15 @@ etc.), you can use the ``--command-executor`` parameter::
 
 Note that if you are using a command executor in a Docker container, a remote
 host, etc., you should not rely on ``localhost`` or ``127.0.0.1`` in
-``DJANGO_LIVE_TEST_SERVER_ADDRESS``.  Instead, either specify the real IP
-address (rarely ideal) or try to deduce it via code like the following::
+``DJANGO_LIVE_TEST_SERVER_ADDRESS`` and must add the IP address which will be
+used to access the server to ``ALLOWED_HOSTS``.  You can either specify the
+real IP address (rarely ideal) or try to deduce it via code like the
+following::
 
     import socket
-    DJANGO_LIVE_TEST_SERVER_ADDRESS = '{}:9090'.format(socket.gethostbyname(socket.gethostname()))
+    IP_ADDRESS = socket.gethostbyname(socket.gethostname())
+    ALLOWED_HOSTS = ['localhost', IP_ADDRESS]
+    DJANGO_LIVE_TEST_SERVER_ADDRESS = '{}:9090'.format(IP_ADDRESS)
 
 You can also specify the number of times to run the tests (for example, if you
 have a test that is failing intermittently for some reason and want to run it
@@ -221,6 +225,15 @@ be customized via the Django settings described above.::
 
     ./manage.py selenium --settings=myapp.selenium_settings --docker
     ./manage.py selenium --docker
+
+Note that if you're running Docker containers in a virtual machine via
+``docker-machine`` or such and using ``tox``, you'll need to allow some
+environment variables to be passed through to the tox environment by adding
+the following to the appropriate environment in ``tox.ini``::
+
+    passenv =
+        DOCKER_*
+        HOME
 
 Running Tests at Sauce Labs
 +++++++++++++++++++++++++++
