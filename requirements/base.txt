@@ -3,9 +3,6 @@
 # Python packaging utilities
 setuptools==21.0.0
 
-# Package manager
-pip==8.1.1
-
 # And now the direct dependencies
 
 # The Django version is set by tox and by git-hooks/post-merge, because we

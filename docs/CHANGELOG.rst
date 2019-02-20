@@ -1,6 +1,10 @@
 sbo-selenium Changelog
 ======================
 
+0.7.3 (2019-02-14)
+------------------
+* Remove pip as a requirement. (RAMP-146)
+
 0.7.2 (2016-05-05)
 ------------------
 * Clarify and demonstrate how to successfully run tests via a Docker-based
