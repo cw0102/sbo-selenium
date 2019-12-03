@@ -1,6 +1,51 @@
 sbo-selenium Changelog
 ======================
 
+0.7.3 (2019-02-14)
+------------------
+* Remove pip as a requirement. (RAMP-146)
+
+0.7.2 (2016-05-05)
+------------------
+* Clarify and demonstrate how to successfully run tests via a Docker-based
+  Selenium server in a virtual machine while using tox.
+
+0.7.1 (2016-04-22)
+------------------
+* Fixed support for specifying which tests to run on the command line.  This
+  seems to have been broken for Django versions which use argparse to parse
+  management command options since support was added for them.
+
+0.7.0 (2016-04-21)
+------------------
+* Added the ``--command-executor`` option for specifying which Selenium server
+  to use, if not localhost
+* Added the ``--docker`` option to automatically start and stop a Docker
+  container for a standalone Selenium server to be used, and added a few
+  related Django settings
+* Fixed handling of custom parameters to work with recent versions of
+  django-nose
+* Changed monitoring of the Selenium server auto-launching to watch stderr
+  instead of stdout for the startup complete message, as recent versions of
+  Selenium seem to have moved the startup output there
+* Fixed a bug where the code for timing out attempts to start certain services
+  (like a standalone Selenium server or Sauce Connect) was taking far longer
+  than intended to time out
+
+0.6.0 (2016-03-29)
+------------------
+* Removed the ``-p`` alias for ``--platform``, as it now conflicts with
+  the ``--plugins`` parameter in the base Django test command
+* Fixed support for the underlying test command's standard options under
+  Django 1.8 and above
+* Confirmed compatibility with Django 1.9 and current master
+* Fixed a minor incompatibility in ``audit_accessibility()`` with
+  accessibility developer tools 2.10.1
+
+0.5.1 (2016-03-03)
+------------------
+* Support accessibility developer tools 2.10.1
+
 0.5.0 (2015-06-29)
 ------------------
 * Support Django 1.7 and 1.8

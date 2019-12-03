@@ -14,13 +14,22 @@ usual for the containing project; for SBO packages this is typically::
 
     pip install -r requirements/tests.txt
 
-To run tests using a particular browser, it needs to already be installed.  To
-drive Chrome via Selenium, you'll need to install both Chrome itself and then
-chromedriver:
- 
-1. Download the correct ChromeDriver from http://chromedriver.storage.googleapis.com/index.html
-2. Put the binary, ``chromedriver``, somewhere on your path
-   (ex: ``/usr/local/bin/chromedriver``)
+Make sure the post-merge runs to install all of the prerequisites::
+
+    ./git-hooks/post-merge
+
+Browser engines
++++++++++++++++
+
+If you are running tests using docker, you don't need to worry about this part.
+
+If you are not using docker, to run tests using a particular browser, the
+browser driver needs to be present. To drive Chrome via Selenium, you'll need
+to install both Chrome itself and then chromedriver:
+
+1. Download the correct ChromeDriver from
+http://chromedriver.storage.googleapis.com/index.html 
+2. Put the binary, ``chromedriver``, somewhere on your path (ex: ``/usr/local/bin/chromedriver``)
 
 On Mac OS X, if you have Homebrew installed you can instead run
 ``brew install chromedriver``.
@@ -62,6 +71,16 @@ runs:
   none are specified.  Should be an array of test
   specifications (see `Running Tests`_ below for examples).  Default value is
   an empty list.
+* ``SELENIUM_DOCKER_DEBUG`` - True if the debug version of the selenium Docker
+  container should be used (in order to allow VNC connections).  Only relevant
+  when the ``--docker`` parameter is used.  Default value is ``False``.
+* ``SELENIUM_DOCKER_PORT`` - The port of localhost (or the Docker Machine, on
+  Mac and Windows) at which to expose the Selenium server running in a Docker
+  container.  Only relevant when the ``--docker`` parameter is used.  Default
+  value is ``4444``.
+* ``SELENIUM_DOCKER_TAG`` - The tag to use in identifying which version of the
+  Selenium Docker container to start.  Only relevant when the ``--docker``
+  parameter is used.  Default value is ``2.53.0``.
 * ``SELENIUM_PAGE_LOAD_TIMEOUT`` - The number of seconds to wait for a response
   to a GET request before considering it to have failed.  Default value is 10
   seconds.  (This is particularly important when using Sauce Connect, as it
@@ -124,9 +143,16 @@ related pages.
 Running Tests
 -------------
 
+Running Tests Locally
++++++++++++++++++++++
+
 Tests can be run via the "selenium" management command::
 
     ./manage.py selenium --settings=myapp.selenium_settings
+
+To run the default set of sbo-selenium tests::
+
+    ./manage.py selenium
 
 Or to specify which test(s) to run rather than using the defaults specified in
 the settings file::
@@ -148,7 +174,7 @@ All the usual methods that the test runner uses to identify tests should work::
     python.module
     python.module:TestClass
     python.module:TestClass.test_method
-    
+
 (Note that a specifying a package, like myapp.tests.selenium when the actual
 tests are defined in modules within that package, does NOT work.)
 
@@ -160,8 +186,25 @@ You can use the ``-b`` or ``--browser`` parameter to change this::
 
 Valid browser names are "chrome", "firefox", "htmlunit", "ios", "opera",
 "phantomjs", and "safari" ("ipad", "iphone", and "ipod" are treated as
-synonyms for "ios", the form factor is chosen in Appium).  Alternatively,
-tests can be run at Sauce Labs; see below for details.
+synonyms for "ios", the form factor is chosen in Appium).
+
+If you want to specify a specific Selenium server to use as a command executor
+(whether running on localhost, a specific remote server, a Docker container,
+etc.), you can use the ``--command-executor`` parameter::
+
+    ./manage.py selenium -b firefox --command-executor=http://127.0.0.1:4444/wd/hub
+
+Note that if you are using a command executor in a Docker container, a remote
+host, etc., you should not rely on ``localhost`` or ``127.0.0.1`` in
+``DJANGO_LIVE_TEST_SERVER_ADDRESS`` and must add the IP address which will be
+used to access the server to ``ALLOWED_HOSTS``.  You can either specify the
+real IP address (rarely ideal) or try to deduce it via code like the
+following::
+
+    import socket
+    IP_ADDRESS = socket.gethostbyname(socket.gethostname())
+    ALLOWED_HOSTS = ['localhost', IP_ADDRESS]
+    DJANGO_LIVE_TEST_SERVER_ADDRESS = '{}:9090'.format(IP_ADDRESS)
 
 You can also specify the number of times to run the tests (for example, if you
 have a test that is failing intermittently for some reason and want to run it
@@ -169,8 +212,31 @@ a few times to increase the odds of encountering the error)::
 
     ./manage.py selenium -n 5
 
-Sauce Labs
-----------
+Running Tests in a Docker Container
++++++++++++++++++++++++++++++++++++
+
+As a convenience, you can use the ``--docker`` parameter to automatically start
+a standalone Selenium server in a Docker container for chrome or firefox tests.
+For this to work, the terminal must already be configured for ``docker``
+commands to work.  The container will be stopped automatically at the end of
+the test run.  By default it uses the ``2.53.0`` image from
+https://hub.docker.com/r/selenium/ and is exposed on port 4444, but this can
+be customized via the Django settings described above.::
+
+    ./manage.py selenium --settings=myapp.selenium_settings --docker
+    ./manage.py selenium --docker
+
+Note that if you're running Docker containers in a virtual machine via
+``docker-machine`` or such and using ``tox``, you'll need to allow some
+environment variables to be passed through to the tox environment by adding
+the following to the appropriate environment in ``tox.ini``::
+
+    passenv =
+        DOCKER_*
+        HOME
+
+Running Tests at Sauce Labs
++++++++++++++++++++++++++++
 
 Instead of running tests in a local browser, they can be run on one in a
 virtual machine hosted at  `Sauce Labs <https://saucelabs.com/home>`_.  Support
@@ -181,7 +247,7 @@ run.  On a local machine, you'll need to set the ``SELENIUM_SAUCE_*`` Django
 settings described above and use a couple of command-line parameters in
 addition to the ``-b`` browser name setting mentioned previously:
 
-* ``-p`` or ``--platform`` - The name and version of the operating system to
+* ``--platform`` - The name and version of the operating system to
   use.
 * ``--browser-version`` - The version number of the browser to use.
 

@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 
 from io import StringIO
+from subprocess import CalledProcessError, check_call, check_output, Popen,\
+    PIPE
 import uuid
 import threading
 import time
@@ -144,7 +146,7 @@ class InputStreamChunker(threading.Thread):
             marker.pop(0)
             marker.append(l)
             if marker != self._stream_delimiter:
-                tf.write(l)
+                tf.write(unicode(l))
             else:
                 # chopping off the marker first
                 tf.seek(self._stream_roll_back_len, 2)
@@ -179,8 +181,10 @@ class OutputMonitor:
         """
         found = False
         stream = self.stream
-        start_time = time.clock()
+        start_time = time.time()
         while not found:
+            if time.time() - start_time > seconds:
+                break
             stream.data_available.wait(0.5)
             stream.data_unoccupied.clear()
             while stream.data:
@@ -191,6 +195,74 @@ class OutputMonitor:
                 self.lines.append(value)
                 stream.data_available.clear()
                 stream.data_unoccupied.set()
-                if time.clock() - start_time > seconds:
+                if time.time() - start_time > seconds:
                     break
         return found
+
+
+class DockerSelenium:
+    """
+    Configuration for a Docker-hosted standalone Selenium server which can be
+    started and stopped as desired.  Assumes that the terminal is already
+    configured for command-line docker usage, and uses the images provided by
+    https://github.com/SeleniumHQ/docker-selenium .
+    """
+
+    def __init__(self, browser='chrome', port=4444, tag='2.53.0', debug=False):
+        self.container_id = None
+        self.ip_address = None
+        self.port = port
+        shared_memory = '-v /dev/shm:/dev/shm' if browser == 'chrome' else ''
+        debug_suffix = '-debug' if debug else ''
+        image_name = 'selenium/standalone-{}{}:{}'.format(browser,
+                                                          debug_suffix, tag)
+        self.command = 'docker run -d -p {}:4444 {} {}'.format(port,
+                                                               shared_memory,
+                                                               image_name)
+
+    def command_executor(self):
+        """Get the appropriate command executor URL for the Selenium server
+        running in the Docker container."""
+        ip_address = self.ip_address if self.ip_address else '127.0.0.1'
+        return 'http://{}:{}/wd/hub'.format(ip_address, self.port)
+
+    def start(self):
+        """Start the Docker container"""
+        if self.container_id is not None:
+            msg = 'The Docker container is already running with ID {}'
+            raise Exception(msg.format(self.container_id))
+
+        process = Popen(['docker ps | grep ":{}"'.format(self.port)],
+                        shell=True, stdout=PIPE)
+        (grep_output, _grep_error) = process.communicate()
+        lines = grep_output.split('\n')
+        for line in lines:
+            if ':{}'.format(self.port) in line:
+                other_id = line.split()[0]
+                msg = 'Port {} is already being used by container {}'
+                raise Exception(msg.format(self.port, other_id))
+
+        self.container_id = check_output(self.command, shell=True).strip()
+        try:
+            self.ip_address = check_output(['docker-machine', 'ip']).strip()
+        except (CalledProcessError, OSError):
+            self.ip_address = '127.0.0.1'
+
+        output = OutputMonitor()
+        logs_process = Popen(['docker', 'logs', '-f', self.container_id],
+                             stdout=output.stream.input,
+                             stderr=open(os.devnull, 'w'))
+        ready_log_line = 'Selenium Server is up and running'
+        if not output.wait_for(ready_log_line, 10):
+            logs_process.kill()
+            msg = 'Timeout starting the Selenium server Docker container:\n'
+            msg += '\n'.join(output.lines)
+            raise Exception(msg)
+        logs_process.kill()
+
+    def stop(self):
+        """Stop the Docker container"""
+        if self.container_id is None:
+            raise Exception('No Docker Selenium container was running')
+        check_call(['docker', 'stop', self.container_id])
+        self.container_id = None

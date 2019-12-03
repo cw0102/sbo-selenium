@@ -20,6 +20,21 @@ class LazySettings(object):
         return getattr(django_settings, 'SELENIUM_DEFAULT_TESTS', [])
 
     @property
+    def SELENIUM_DOCKER_DEBUG(self):
+        """True if the debug version of the selenium docker container should be used (for VNC connections)"""
+        return getattr(django_settings, 'SELENIUM_DOCKER_DEBUG', False)
+
+    @property
+    def SELENIUM_DOCKER_PORT(self):
+        """Port to use for a Selenium standalone server docker container"""
+        return getattr(django_settings, 'SELENIUM_DOCKER_PORT', 4444)
+
+    @property
+    def SELENIUM_DOCKER_TAG(self):
+        """Which tag of the Selenium standalone server docker container to use"""
+        return getattr(django_settings, 'SELENIUM_DOCKER_TAG', '2.53.0')
+
+    @property
     def SELENIUM_POLL_FREQUENCY(self):
         """Default operation retry frequency"""
         return getattr(django_settings, 'SELENIUM_POLL_FREQUENCY', 0.5)
